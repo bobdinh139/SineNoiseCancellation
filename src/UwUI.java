@@ -14,6 +14,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,11 +28,21 @@ public class UwUI extends Component implements ActionListener{
 	private  JButton playsametime;
 	public static JLabel say[] = new JLabel[3];
 	private  JPanel panel = new JPanel();
+	private JButton generateSound;
+	private JCheckBox applynoise;
+	
+	private JCheckBox lightnoise;
+
 	
 	private GraphApp a=new GraphApp(false,false);
 	
 	public UwUI(Frame frame) {
-	
+	    
+		generateSound = new JButton("Generate Sine Wave");
+		
+		applynoise = new JCheckBox("Apply noise cancellation");
+		lightnoise=new JCheckBox("Light noise cancellation");
+		
 		sinenoise = new JButton("Sine wave");
 		negsinenoise = new JButton("Negative Sine wave");
 		playsametime = new JButton("Cancel da noize eh");
@@ -42,10 +53,18 @@ public class UwUI extends Component implements ActionListener{
 		panel.add(sinenoise);
 		panel.add(negsinenoise);
 		panel.add(playsametime);
-
+ 
+		panel.add(generateSound);
+		panel.add(applynoise);
+		panel.add(lightnoise);
+		
 		panel.add(a);
 		
 		panel.setLayout(null);
+		
+		generateSound.setBounds(300,500,200,50);
+		applynoise.setBounds(200,550,200,50);
+		lightnoise.setBounds(400,550,200,50);
 		
         say[2].setBounds(225, 40, 400, 50);
         say[2].setForeground(Color.BLUE);
@@ -62,6 +81,9 @@ public class UwUI extends Component implements ActionListener{
 		playsametime.setBounds(325,700,150,50);
 		
 
+		generateSound.addActionListener(this);
+		applynoise.addActionListener(this);
+		lightnoise.addActionListener(this);
 		sinenoise.addActionListener(this);
 		negsinenoise.addActionListener(this);
 		playsametime.addActionListener(this);
@@ -157,6 +179,66 @@ public class UwUI extends Component implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String s = e.getActionCommand(); 
+		
+		if(s.equals("Generate Sine Wave")) {
+			
+			a.sine=true;
+			a.negsine=false;
+			a.reset();
+			a.repaint();
+			a.timer.start();
+			
+			  new Thread(new Runnable() {
+	   				public void run() {
+	   					try {
+	   						for (int i=10; i >0; i--) {
+	   							Thread.sleep(1000);
+	   							generateSound.setText("Wait for " +i+" second(s)");
+	   						}
+	   						generateSound.setText("Generate Sine Wave");
+	   						
+	   					} catch (InterruptedException e2) {
+	   						e2.printStackTrace();
+	   					}
+	   					
+	   				}
+				  }).start();
+			new OkThisIsEmbarrassing().execution();
+			
+			
+	
+			
+			
+		}
+		
+		if(lightnoise.isSelected()) {
+			OkThisIsEmbarrassing.howheavy=2;
+		}else {
+			OkThisIsEmbarrassing.howheavy=1;
+
+		}
+		
+		if (applynoise.isSelected()) {
+			OkThisIsEmbarrassing.danumber=-1;
+		     UwUI.say[1].setForeground(new Color(0,102,0));
+             UwUI.say[1].setText("Noise cancellation is active");
+			a.sine=true;
+			a.negsine=true;
+			a.reset();
+			a.repaint();
+			a.timer.start();
+		
+		}else {
+			OkThisIsEmbarrassing.danumber=1;
+	         UwUI.say[1].setForeground(Color.RED);
+             UwUI.say[1].setText("Noise cancellation is not active");
+			a.sine=true;
+			a.negsine=false;
+			a.reset();
+			a.repaint();
+			a.timer.start();
+		}
+		
 		if (s.equals("Sine wave") ) {
 
 			posandnegsinewaveeh(1);			
