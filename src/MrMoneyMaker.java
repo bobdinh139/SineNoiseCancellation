@@ -1,4 +1,3 @@
-import java.awt.Color;
 import java.nio.ByteBuffer;
 
 import javax.sound.sampled.AudioFormat;
@@ -9,9 +8,11 @@ import javax.sound.sampled.SourceDataLine;
 
 public class MrMoneyMaker {
 	static int danumber =1;
-  
-	public void makeNoisePlz() {
+	public static int howheavy = 1;
+
+	public void makeNoisePlz(boolean timedq, int timesin, int timeneg, boolean singular) {
 		
+		if(timedq) {
 	               new Thread(new Runnable() {
 	            	   public void run() {
 	            			new java.util.Timer().schedule( 
@@ -19,8 +20,8 @@ public class MrMoneyMaker {
 	            			            @Override
 	            			            public void run() {
 	            			                danumber=-1;
-	            			                UwUI.say[1].setForeground(new Color(0,102,0));
-	            			                UwUI.say[1].setText("Noise cancellation is active");
+	            			                UwUI.changeTerminal(true);
+
 	            			            }
 	            			        }, 
 	            			      500 
@@ -30,8 +31,8 @@ public class MrMoneyMaker {
 	            			            @Override
 	            			            public void run() {
 	            			                danumber=-1;
-	            			                UwUI.say[1].setForeground(Color.RED);
-	            			                UwUI.say[1].setText("Noise cancellation is not active");
+	            			                UwUI.changeTerminal(false);
+
 	            			            }
 	            			        }, 
 	            			      2000 
@@ -39,8 +40,7 @@ public class MrMoneyMaker {
 	            	   }
 	            	   
 	               }).start();
-		 
-	               
+		    }
 	               
 		           new Thread(new Runnable() {
 		     				public void run() {
@@ -71,7 +71,7 @@ public class MrMoneyMaker {
 		     					      // Make our buffer size match audio system's buffer
 		     					      ByteBuffer cBuf = ByteBuffer.allocate(line.getBufferSize());   
 
-		     					      int ctSamplesTotal = SAMPLING_RATE*2;         // Output for roughly 5 seconds
+		     					      int ctSamplesTotal = SAMPLING_RATE*timesin;         // Output for roughly 5 seconds
 
 
 		     					      //On each pass main loop fills the available free space in the audio buffer
@@ -85,7 +85,7 @@ public class MrMoneyMaker {
 		     					      	  // Figure out how many samples we can add
 		     					         int ctSamplesThisPass = line.available()/SAMPLE_SIZE;   
 		     					         for (int i=0; i < ctSamplesThisPass; i++) {
-		     					            cBuf.putShort((short)(Short.MAX_VALUE * Math.sin(danumber*2*Math.PI * fCyclePosition)));
+		     					            cBuf.putShort((short)(Short.MAX_VALUE * Math.sin(danumber*2*Math.PI * fCyclePosition)/howheavy));
 
 		     					            fCyclePosition += fCycleInc;
 		     					            if (fCyclePosition > 1)
@@ -118,7 +118,7 @@ public class MrMoneyMaker {
 	
 		
 		 
-		 
+		if(singular) {
 		   new Thread(new Runnable() {
 				public void run() {
 					try {
@@ -148,7 +148,7 @@ public class MrMoneyMaker {
 					      // Make our buffer size match audio system's buffer
 					      ByteBuffer cBuf = ByteBuffer.allocate(line.getBufferSize());   
 
-					      int ctSamplesTotal = SAMPLING_RATE*3;         // Output for roughly 5 seconds
+					      int ctSamplesTotal = SAMPLING_RATE*timeneg;         // Output for roughly 5 seconds
 
 
 					      //On each pass main loop fills the available free space in the audio buffer
@@ -189,6 +189,9 @@ public class MrMoneyMaker {
 					}
 					
 				}}).start();
+		}
+		   
+		   
 	}
 	
 }

@@ -5,14 +5,6 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import java.nio.ByteBuffer;
-
-
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.SourceDataLine;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -37,7 +29,7 @@ public class UwUI extends Component implements ActionListener{
 	private GraphApp a=new GraphApp(false,false);
 	
 	public UwUI(Frame frame) {
-	    
+	
 		generateSound = new JButton("Generate Sine Wave");
 		
 		applynoise = new JCheckBox("Apply noise cancellation");
@@ -45,11 +37,14 @@ public class UwUI extends Component implements ActionListener{
 		
 		sinenoise = new JButton("Sine wave");
 		negsinenoise = new JButton("Negative Sine wave");
-		playsametime = new JButton("Cancel da noize eh");
+		playsametime = new JButton("Demo (Legacy)");
 		say[0] = new JLabel("Terminal");
 		say[1] = new JLabel("Noise cancellation is not active");
 		say[2] = new JLabel("Visual representation (just for illustration purpose only)");
 		for (int i =0; i<say.length; panel.add(say[i++]));
+		 
+		
+
 		panel.add(sinenoise);
 		panel.add(negsinenoise);
 		panel.add(playsametime);
@@ -96,97 +91,31 @@ public class UwUI extends Component implements ActionListener{
 		((JFrame) frame).setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-
 	
-		  
-	
-	public void posandnegsinewaveeh(int a2) {
-
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					final int SAMPLING_RATE = 44100;            // Audio sampling rate
-					final int SAMPLE_SIZE = 2;                  // Audio sample size in bytes
-
-					SourceDataLine line;
-					double fFreq = 440;                         // Frequency of sine wave in hz
-
-					//Position through the sine wave as a percentage (i.e. 0 to 1 is 0 to 2*PI)
-					double fCyclePosition = 0;        
-
-					//Open up audio output, using 44100hz sampling rate, 16 bit samples, mono, and big 
-					// endian byte ordering
-					AudioFormat format = new AudioFormat(SAMPLING_RATE, 16, 1, true, true);
-					DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-
-					if (!AudioSystem.isLineSupported(info)){
-						System.out.println("Line matching " + info + " is not supported.");
-						throw new LineUnavailableException();
-					}
-
-					line = (SourceDataLine)AudioSystem.getLine(info);
-					line.open(format);  
-					line.start();
-
-					// Make our buffer size match audio system's buffer
-					ByteBuffer cBuf = ByteBuffer.allocate(line.getBufferSize());   
-
-					int ctSamplesTotal = SAMPLING_RATE*1;         // Output for roughly 5 seconds
-
-
-					//On each pass main loop fills the available free space in the audio buffer
-					//Main loop creates audio samples for sine wave, runs until we tell the thread to exit
-					//Each sample is spaced 1/SAMPLING_RATE apart in time
-					while (ctSamplesTotal>0) {
-						double fCycleInc = fFreq/SAMPLING_RATE;  // Fraction of cycle between samples
-
-						cBuf.clear();                            // Discard samples from previous pass
-
-						// Figure out how many samples we can add
-						int ctSamplesThisPass = line.available()/SAMPLE_SIZE;   
-						for (int i=0; i < ctSamplesThisPass; i++) {
-							cBuf.putShort((short)(Short.MAX_VALUE * Math.sin(a2*2*Math.PI * fCyclePosition)));
-
-							fCyclePosition += fCycleInc;
-							if (fCyclePosition > 1)
-								fCyclePosition -= 1;
-						}
-
-						//Write sine samples to the line buffer.  If the audio buffer is full, this will 
-						// block until there is room (we never write more samples than buffer will hold)
-						line.write(cBuf.array(), 0, cBuf.position());            
-						ctSamplesTotal -= ctSamplesThisPass;     // Update total number of samples written 
-
-						//Wait until the buffer is at least half empty  before we add more
-						while (line.getBufferSize()/2 < line.available())   
-							Thread.sleep(1);                                             
-					}
-
-
-					//Done playing the whole waveform, now wait until the queued samples finish 
-					//playing, then clean up and exit
-					line.drain();                                         
-					line.close();
-				}catch(Exception e) {
-					e.printStackTrace();
-				}
-
-			}}).start();
+	public void resetVisual(boolean sine, boolean neg) {
+		a.sine=sine;
+		a.negsine=neg;
+		a.reset();
+		a.repaint();
+		a.timer.start();
 	}
-	
 
+	public static void changeTerminal(boolean activeq) {
+		if(activeq) {
+		     UwUI.say[1].setForeground(new Color(0,102,0));
+             UwUI.say[1].setText("Noise cancellation is active");
+		}else {
+		    UwUI.say[1].setForeground(Color.RED);
+            UwUI.say[1].setText("Noise cancellation is not active");
+		}
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String s = e.getActionCommand(); 
 		
 		if(s.equals("Generate Sine Wave")) {
-			
-			a.sine=true;
-			a.negsine=false;
-			a.reset();
-			a.repaint();
-			a.timer.start();
+			resetVisual(true,false);
 			
 			  new Thread(new Runnable() {
 	   				public void run() {
@@ -203,68 +132,63 @@ public class UwUI extends Component implements ActionListener{
 	   					
 	   				}
 				  }).start();
-			new OkThisIsEmbarrassing().execution();
-			
-			
-	
-			
+				MrMoneyMaker.howheavy =1;
+				MrMoneyMaker.danumber=-1;
+
+			new MrMoneyMaker().makeNoisePlz(false,10,10, true);
 			
 		}
 		
 		if(lightnoise.isSelected()) {
-			OkThisIsEmbarrassing.howheavy=2;
+			//OkThisIsEmbarrassing.howheavy=2;
+			MrMoneyMaker.howheavy =2;
+
 		}else {
-			OkThisIsEmbarrassing.howheavy=1;
+			//OkThisIsEmbarrassing.howheavy=1;
+			MrMoneyMaker.howheavy =1;
 
 		}
 		
 		if (applynoise.isSelected()) {
-			OkThisIsEmbarrassing.danumber=-1;
-		     UwUI.say[1].setForeground(new Color(0,102,0));
-             UwUI.say[1].setText("Noise cancellation is active");
-			a.sine=true;
-			a.negsine=true;
-			a.reset();
-			a.repaint();
-			a.timer.start();
+			//OkThisIsEmbarrassing.danumber=-1;
+			MrMoneyMaker.danumber=-1;
+
+            changeTerminal(true);
+		    resetVisual(true,true);
 		
 		}else {
-			OkThisIsEmbarrassing.danumber=1;
-	         UwUI.say[1].setForeground(Color.RED);
-             UwUI.say[1].setText("Noise cancellation is not active");
-			a.sine=true;
-			a.negsine=false;
-			a.reset();
-			a.repaint();
-			a.timer.start();
+			//OkThisIsEmbarrassing.danumber=1;
+			MrMoneyMaker.danumber=1;
+            changeTerminal(false);
+
+			resetVisual(true,false);
 		}
 		
 		if (s.equals("Sine wave") ) {
 
-			posandnegsinewaveeh(1);			
-			a.sine=true;
-			a.negsine=false;
-			a.reset();
-			a.repaint();
-			a.timer.start();;
-		}
-		if (s.equals("Negative Sine wave") ) {
-			posandnegsinewaveeh(-1);
-			a.negsine=true;
-			a.sine=false;
-			a.reset();
-			a.repaint();
-			a.timer.start();
+			//posandnegsinewaveeh(1);	
+			MrMoneyMaker.danumber=1;
+			new MrMoneyMaker().makeNoisePlz(false,1,1, false);
+			
+			resetVisual(true,false);
 
 		}
-		if (s.equals("Cancel da noize eh") ) {
+		if (s.equals("Negative Sine wave") ) {
+			
+			//posandnegsinewaveeh(-1);
+			MrMoneyMaker.danumber=-1;
+			new MrMoneyMaker().makeNoisePlz(false,1,1, false);
+			resetVisual(false,true);
+
+
+		}
+		if (s.equals("Demo (Legacy)") ) {
 			MrMoneyMaker.danumber=1;
-			new MrMoneyMaker().makeNoisePlz();
-			a.negsine=true;
-			a.sine=true;
-			a.reset();
-			a.repaint();
-			a.timer.start();
+			
+			new MrMoneyMaker().makeNoisePlz(true, 2,3, true);
+			
+			resetVisual(true,true);
+
 
 		}
 	}
