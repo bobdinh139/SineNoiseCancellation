@@ -23,15 +23,17 @@ public class UwUI extends Component implements ActionListener{
 	private JButton generateSound;
 	private JCheckBox applynoise;
 	
-	private JCheckBox lightnoise;
+	private JCheckBox advanced;
 
+	private JCheckBox lightnoise;
+    private MrMoneyMaker mmm=new MrMoneyMaker();
 	
 	private GraphApp a=new GraphApp(false,false);
 	
 	public UwUI(Frame frame) {
 	
 		generateSound = new JButton("Generate Sine Wave");
-		
+		advanced = new JCheckBox("Advanced Option");
 		applynoise = new JCheckBox("Apply noise cancellation");
 		lightnoise=new JCheckBox("Light noise cancellation");
 		
@@ -48,7 +50,7 @@ public class UwUI extends Component implements ActionListener{
 		panel.add(sinenoise);
 		panel.add(negsinenoise);
 		panel.add(playsametime);
- 
+        panel.add(advanced);
 		panel.add(generateSound);
 		panel.add(applynoise);
 		panel.add(lightnoise);
@@ -61,7 +63,7 @@ public class UwUI extends Component implements ActionListener{
 		applynoise.setBounds(200,550,200,50);
 		lightnoise.setBounds(400,550,200,50);
 		
-        say[2].setBounds(225, 40, 400, 50);
+        say[2].setBounds(225, 30, 400, 50);
         say[2].setForeground(Color.BLUE);
 
 		a.setBounds(250,100,300,300);
@@ -70,12 +72,15 @@ public class UwUI extends Component implements ActionListener{
 		
         say[1].setForeground(Color.RED);
 	
+		advanced.setBounds(320,60,200,50);
 		
 		sinenoise.setBounds(350, 600, 100, 50);
         negsinenoise.setBounds(325,650,150,50);
 		playsametime.setBounds(325,700,150,50);
-		
-
+		sinenoise.setVisible(false);
+        negsinenoise.setVisible(false);
+		playsametime.setVisible(false);
+        advanced.addActionListener(this);
 		generateSound.addActionListener(this);
 		applynoise.addActionListener(this);
 		lightnoise.addActionListener(this);
@@ -135,8 +140,18 @@ public class UwUI extends Component implements ActionListener{
 				MrMoneyMaker.howheavy =1;
 				MrMoneyMaker.danumber=-1;
 
-			new MrMoneyMaker().makeNoisePlz(false,10,10, true);
+				mmm.makeNoisePlz(false,10,10, true);
 			
+		}
+		
+		if(advanced.isSelected()) {
+			sinenoise.setVisible(true);
+	        negsinenoise.setVisible(true);
+			playsametime.setVisible(true);
+		}else {
+			sinenoise.setVisible(false);
+	        negsinenoise.setVisible(false);
+			playsametime.setVisible(false);
 		}
 		
 		if(lightnoise.isSelected()) {
@@ -168,7 +183,7 @@ public class UwUI extends Component implements ActionListener{
 
 			//posandnegsinewaveeh(1);	
 			MrMoneyMaker.danumber=1;
-			new MrMoneyMaker().makeNoisePlz(false,1,1, false);
+			mmm.makeNoisePlz(false,1,1, false);
 			
 			resetVisual(true,false);
 
@@ -177,7 +192,7 @@ public class UwUI extends Component implements ActionListener{
 			
 			//posandnegsinewaveeh(-1);
 			MrMoneyMaker.danumber=-1;
-			new MrMoneyMaker().makeNoisePlz(false,1,1, false);
+			mmm.makeNoisePlz(false,1,1, false);
 			resetVisual(false,true);
 
 
@@ -185,7 +200,7 @@ public class UwUI extends Component implements ActionListener{
 		if (s.equals("Demo (Legacy)") ) {
 			MrMoneyMaker.danumber=1;
 			
-			new MrMoneyMaker().makeNoisePlz(true, 2,3, true);
+			mmm.makeNoisePlz(true, 2,3, true);
 			
 			resetVisual(true,true);
 
